@@ -97,3 +97,4 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, responder))
 
 print("VexiBot está ONLINE!")
 app.run_polling()
+
