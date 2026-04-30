@@ -15,7 +15,7 @@ import os
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "8339548505:AAEekrJgislwNGCnvSb14zaJMO5sboCqaMY")
 
 # Chave da API OpenAI (GPT-4o)
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "SUA_CHAVE_OPENAI_AQUI")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "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")
 
 # ─────────────────────────────────────────
 # CONFIGURAÇÕES DO NEO4J (futuro)
