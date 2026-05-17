@@ -1,5 +1,5 @@
 """
-Estoque mantido em memória.
+Estoque mantido em memoria.
 """
 
 from typing import Optional
@@ -27,8 +27,8 @@ _produtos = {
         "quantidade": 4,
         "estoque_minimo": 2,
     },
-    "carvão": {
-        "nome": "Carvão",
+    "carvao": {
+        "nome": "Carvao",
         "categoria": "Utilidades",
         "quantidade": 8,
         "estoque_minimo": 2,
@@ -37,7 +37,7 @@ _produtos = {
 
 
 # ===============================
-# SERVIÇO DE ESTOQUE
+# SERVICO DE ESTOQUE
 # ===============================
 
 class EstoqueService:
@@ -97,19 +97,20 @@ class EstoqueService:
 
 
 # ===============================
-# INSTÂNCIA GLOBAL
+# INSTANCIA GLOBAL
 # ===============================
 
 estoque_service = EstoqueService()
 
-estoque.py — Camada de dados: controle de produtos e vendas
-Responsável por TODA a lógica de negócio relacionada a estoque.
-Implementa o padrão Repository: o restante do sistema nunca acessa
-dados diretamente — sempre passa por aqui.
+"""
+estoque.py -- Camada de dados: controle de produtos e vendas
+Responsavel por TODA a logica de negocio relacionada a estoque.
+Implementa o padrao Repository: o restante do sistema nunca acessa
+dados diretamente -- sempre passa por aqui.
 
-Design para substituição futura:
+Design para substituicao futura:
   - A classe SimulatedDB pode ser trocada por Neo4jDB sem alterar bot.py ou ia.py.
-  - Basta implementar os mesmos métodos públicos na nova classe.
+  - Basta implementar os mesmos metodos publicos na nova classe.
 """
 
 from __future__ import annotations
@@ -122,9 +123,9 @@ from config import USE_SIMULATION
 logger = logging.getLogger(__name__)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 # MODELOS DE DADOS
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
 
 @dataclass
 class Produto:
@@ -144,34 +145,34 @@ class Venda:
     data: str = field(default_factory=lambda: datetime.now().strftime("%d/%m/%Y %H:%M"))
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# BANCO DE DADOS SIMULADO (dicionário Python)
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# BANCO DE DADOS SIMULADO (dicionario Python)
+# -----------------------------------------------------------------------------
 
 class SimulatedDB:
     """
-    Banco de dados em memória usando dicionários Python.
+    Banco de dados em memoria usando dicionarios Python.
     Simula exatamente a estrutura que seria usada no Neo4j:
-      - Nó :Produto {nome, quantidade, preco, categoria}
-      - Nó :Venda   {produto, quantidade, total, data}
+      - No :Produto {nome, quantidade, preco, categoria}
+      - No :Venda   {produto, quantidade, total, data}
       - Relacionamento (:Venda)-[:REFERENCIA]->(:Produto)
     """
 
     def __init__(self) -> None:
-        # Estoque inicial para demonstração
+        # Estoque inicial para demonstracao
         self._produtos: dict[str, Produto] = {
-            "camisa":   Produto("camisa",   25, 59.90,  "vestuário"),
-            "calça":    Produto("calça",    18, 89.90,  "vestuário"),
-            "bolsa":    Produto("bolsa",    12, 149.90, "acessórios"),
-            "tênis":    Produto("tênis",    8,  219.90, "calçados"),
-            "boné":     Produto("boné",     30, 39.90,  "acessórios"),
-            "meia":     Produto("meia",     50, 14.90,  "vestuário"),
-            "jaqueta":  Produto("jaqueta",  6,  299.90, "vestuário"),
-            "sandália": Produto("sandália", 10, 99.90,  "calçados"),
+            "camisa":   Produto("camisa",   25, 59.90,  "vestuario"),
+            "calca":    Produto("calca",    18, 89.90,  "vestuario"),
+            "bolsa":    Produto("bolsa",    12, 149.90, "acessorios"),
+            "tenis":    Produto("tenis",    8,  219.90, "calcados"),
+            "bone":     Produto("bone",     30, 39.90,  "acessorios"),
+            "meia":     Produto("meia",     50, 14.90,  "vestuario"),
+            "jaqueta":  Produto("jaqueta",  6,  299.90, "vestuario"),
+            "sandalia": Produto("sandalia", 10, 99.90,  "calcados"),
         }
         self._vendas: list[Venda] = []
 
-    # ── Produtos ────────────────────────────────────────────────────────────
+    # -- Produtos ------------------------------------------------------------
 
     def get_produto(self, nome: str) -> Optional[Produto]:
         """Retorna um produto pelo nome (busca normalizada)."""
@@ -182,19 +183,19 @@ class SimulatedDB:
         return sorted(self._produtos.values(), key=lambda p: p.nome)
 
     def atualizar_quantidade(self, nome: str, nova_qtd: int) -> bool:
-        """Atualiza a quantidade de um produto. Retorna False se não existir."""
+        """Atualiza a quantidade de um produto. Retorna False se nao existir."""
         key = self._normalizar(nome)
         if key not in self._produtos:
             return False
         self._produtos[key].quantidade = nova_qtd
         return True
 
-    # ── Vendas ───────────────────────────────────────────────────────────────
+    # -- Vendas --------------------------------------------------------------
 
     def registrar_venda(self, produto: str, quantidade: int) -> Optional[Venda]:
         """
         Tenta registrar uma venda.
-        Retorna a Venda criada em caso de sucesso, ou None se inválida.
+        Retorna a Venda criada em caso de sucesso, ou None se invalida.
         """
         key = self._normalizar(produto)
         p = self._produtos.get(key)
@@ -204,7 +205,7 @@ class SimulatedDB:
             return None
 
         if quantidade <= 0:
-            logger.warning(f"Quantidade inválida na venda: {quantidade}")
+            logger.warning(f"Quantidade invalida na venda: {quantidade}")
             return None
 
         if p.quantidade < quantidade:
@@ -221,18 +222,18 @@ class SimulatedDB:
             preco_total=round(p.preco_unitario * quantidade, 2),
         )
         self._vendas.append(venda)
-        logger.info(f"Venda registrada: {quantidade}x {p.nome} — R$ {venda.preco_total:.2f}")
+        logger.info(f"Venda registrada: {quantidade}x {p.nome} -- R$ {venda.preco_total:.2f}")
         return venda
 
     def historico_vendas(self, limite: int = 10) -> list[Venda]:
-        """Retorna as últimas vendas registradas."""
+        """Retorna as ultimas vendas registradas."""
         return self._vendas[-limite:]
 
-    # ── Utilitários ──────────────────────────────────────────────────────────
+    # -- Utilitarios ---------------------------------------------------------
 
     @staticmethod
     def _normalizar(texto: str) -> str:
-        """Padroniza o nome do produto para busca (minúsculas, sem espaços extras)."""
+        """Padroniza o nome do produto para busca (minusculas, sem espacos extras)."""
         return texto.strip().lower()
 
     def produto_existe(self, nome: str) -> bool:
@@ -241,7 +242,7 @@ class SimulatedDB:
     def busca_aproximada(self, termo: str) -> list[str]:
         """
         Tenta encontrar produtos com nomes parecidos ao termo buscado.
-        Útil para sugestões quando o produto exato não é encontrado.
+        Util para sugestoes quando o produto exato nao e encontrado.
         """
         termo_n = self._normalizar(termo)
         sugestoes = [
@@ -251,13 +252,13 @@ class SimulatedDB:
         return sugestoes
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# INTERFACE PÚBLICA — usada por bot.py e ia.py
-# ─────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# INTERFACE PUBLICA -- usada por bot.py e ia.py
+# -----------------------------------------------------------------------------
 
 class EstoqueService:
     """
-    Serviço de estoque que abstrai o banco de dados subjacente.
+    Servico de estoque que abstrai o banco de dados subjacente.
     bot.py e ia.py interagem APENAS com esta classe.
     Para trocar para Neo4j: substitua self.db = SimulatedDB() por Neo4jDB().
     """
@@ -267,15 +268,15 @@ class EstoqueService:
             self.db = SimulatedDB()
             logger.info("EstoqueService iniciado com banco simulado.")
         else:
-            # Ponto de extensão: importar e usar Neo4jDB aqui
-            raise NotImplementedError("Neo4j real ainda não implementado. Configure USE_SIMULATION=True.")
+            # Ponto de extensao: importar e usar Neo4jDB aqui
+            raise NotImplementedError("Neo4j real ainda nao implementado. Configure USE_SIMULATION=True.")
 
-    # ── Consultas ────────────────────────────────────────────────────────────
+    # -- Consultas -----------------------------------------------------------
 
     def consultar_produto(self, nome: str) -> dict:
         """
         Consulta um produto pelo nome.
-        Retorna dicionário com status e dados do produto.
+        Retorna dicionario com status e dados do produto.
         """
         produto = self.db.get_produto(nome)
 
@@ -289,7 +290,7 @@ class EstoqueService:
                 "em_estoque": produto.quantidade > 0,
             }
 
-        # Produto não encontrado — tenta sugestões
+        # Produto nao encontrado -- tenta sugestoes
         sugestoes = self.db.busca_aproximada(nome)
         return {
             "encontrado": False,
@@ -298,7 +299,7 @@ class EstoqueService:
         }
 
     def listar_todos(self) -> list[dict]:
-        """Retorna lista completa do estoque em formato serializável."""
+        """Retorna lista completa do estoque em formato serializavel."""
         return [
             {
                 "nome": p.nome,
@@ -311,7 +312,7 @@ class EstoqueService:
         ]
 
     def estoque_resumo(self) -> dict:
-        """Retorna métricas gerais do estoque."""
+        """Retorna metricas gerais do estoque."""
         produtos = self.db.listar_estoque()
         total_itens = sum(p.quantidade for p in produtos)
         sem_estoque = [p.nome for p in produtos if p.quantidade == 0]
@@ -323,18 +324,18 @@ class EstoqueService:
             "baixo_estoque": baixo_estoque,
         }
 
-    # ── Vendas ───────────────────────────────────────────────────────────────
+    # -- Vendas --------------------------------------------------------------
 
     def registrar_venda(self, produto: str, quantidade: int) -> dict:
         """
-        Registra uma venda com validação completa.
+        Registra uma venda com validacao completa.
         Retorna dict com sucesso/erro e mensagem de contexto.
         """
-        # Validação de quantidade
+        # Validacao de quantidade
         if not isinstance(quantidade, int) or quantidade <= 0:
             return {"sucesso": False, "erro": "quantidade_invalida", "quantidade": quantidade}
 
-        # Verifica existência antes de tentar registrar
+        # Verifica existencia antes de tentar registrar
         info = self.consultar_produto(produto)
         if not info["encontrado"]:
             return {
@@ -353,7 +354,7 @@ class EstoqueService:
                 "solicitado": quantidade,
             }
 
-        # Tudo validado — registra
+        # Tudo validado -- registra
         venda = self.db.registrar_venda(produto, quantidade)
         if venda:
             return {
@@ -368,7 +369,7 @@ class EstoqueService:
         return {"sucesso": False, "erro": "falha_interna"}
 
     def historico_vendas(self) -> list[dict]:
-        """Retorna histórico de vendas formatado."""
+        """Retorna historico de vendas formatado."""
         return [
             {
                 "produto": v.produto,
@@ -380,5 +381,5 @@ class EstoqueService:
         ]
 
 
-# Instância única compartilhada pelo sistema (Singleton)
+# Instancia unica compartilhada pelo sistema (Singleton)
 estoque_service = EstoqueService()
